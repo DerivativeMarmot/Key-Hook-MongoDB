@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from pprint import pprint
 from Utilities import Utilities
 from Validator import Validator
+from datetime import datetime
 
 
 if __name__ == '__main__':
@@ -16,36 +17,59 @@ if __name__ == '__main__':
     client : MongoClient = Utilities.startup()
 
     # initialize
-    client.drop_database('key_hook')
+    if 'key_hook' in client.list_database_names():
+        client.drop_database('key_hook')
     db = client.key_hook
 
     employees = db.employees
     room_requests = db.room_requests
-    key_issue = db.key_issue
-    key_issue_return = db.key_issue_return
-    key_issue_loss = db.key_issue_loss
+    rooms = db.rooms
+    # key_issue = db.key_issue
+    # key_issue_return = db.key_issue_return
+    # key_issue_loss = db.key_issue_loss
 
     # unique constraint
     employees.create_index([
-        ('id', pymongo.ASCENDING)
+        ('full_name', pymongo.ASCENDING)
     ], unique=True)
     room_requests.create_index([
-        ('request_id', pymongo.ASCENDING)
+        ('request_time', pymongo.ASCENDING),
+        ('employee', pymongo.ASCENDING),
+        ('room', pymongo.ASCENDING),
     ], unique=True)
-    key_issue.create_index([
-        ('issue_number', pymongo.ASCENDING)
-    ], unique=True)
-    key_issue_return.create_index([
-        ('issue_number', pymongo.ASCENDING)
-    ], unique=True)
-    key_issue_loss.create_index([
-        ('issue_number', pymongo.ASCENDING)
-    ], unique=True)
+    # key_issue.create_index([
+    #     ('issue_number', pymongo.ASCENDING)
+    # ], unique=True)
+    # key_issue_return.create_index([
+    #     ('issue_number', pymongo.ASCENDING)
+    # ], unique=True)
+    # key_issue_loss.create_index([
+    #     ('issue_number', pymongo.ASCENDING)
+    # ], unique=True)
 
     # validator
     db.command('collMod', 'employees', validator=Validator.employees_validator())
+    db.command('collMod', 'room_requests', validator=Validator.room_requests_validator())
 
-    employees.insert_one({
-        'id': 1,
+
+    e1 = employees.insert_one({
+        # 'id': 1,
         'full_name': 'james bon'
     })
+    e2 = employees.insert_one({
+        # 'id': 2,
+        'full_name': 'james bone',
+    })
+
+    room1 = rooms.insert_one({
+        'building_name': 'VEC',
+        'room_number': 322
+    })
+
+    rq1 = room_requests.insert_one({
+        'request_time': datetime.now(),
+        'employee': DBRef('employees', e1.inserted_id),
+        'room': DBRef('rooms', room1.inserted_id)
+    })
+
+    
