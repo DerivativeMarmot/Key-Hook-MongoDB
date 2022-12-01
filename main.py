@@ -24,9 +24,9 @@ if __name__ == '__main__':
     employees = db.employees
     room_requests = db.room_requests
     rooms = db.rooms
-    # key_issue = db.key_issue
-    # key_issue_return = db.key_issue_return
-    # key_issue_loss = db.key_issue_loss
+    key_issue = db.key_issue
+    key_issue_return = db.key_issue_return
+    key_issue_loss = db.key_issue_loss
 
     # unique constraint
     employees.create_index([
@@ -37,19 +37,24 @@ if __name__ == '__main__':
         ('employee', pymongo.ASCENDING),
         ('room', pymongo.ASCENDING),
     ], unique=True)
-    # key_issue.create_index([
-    #     ('issue_number', pymongo.ASCENDING)
-    # ], unique=True)
-    # key_issue_return.create_index([
-    #     ('issue_number', pymongo.ASCENDING)
-    # ], unique=True)
-    # key_issue_loss.create_index([
-    #     ('issue_number', pymongo.ASCENDING)
-    # ], unique=True)
+    key_issue.create_index([
+        ('start_time', pymongo.ASCENDING),
+        ('room_request', pymongo.ASCENDING),
+        ('key', pymongo.ASCENDING)
+    ], unique=True)
+    key_issue_return.create_index([
+        ('loss_date', pymongo.ASCENDING)
+    ], unique=True)
+    key_issue_loss.create_index([
+        ('return_date', pymongo.ASCENDING)
+    ], unique=True)
 
     # validator
     db.command('collMod', 'employees', validator=Validator.employees_validator())
     db.command('collMod', 'room_requests', validator=Validator.room_requests_validator())
+    db.command('collMod', 'key_issue', validator=Validator.key_issue_validator())
+    db.command('collMod', 'key_issue_return', validator=Validator.key_issue_return_validator())
+    db.command('collMod', 'key_issue_loss', validator=Validator.key_issue_loss_validator())
 
 
     e1 = employees.insert_one({
@@ -71,5 +76,12 @@ if __name__ == '__main__':
         'employee': DBRef('employees', e1.inserted_id),
         'room': DBRef('rooms', room1.inserted_id)
     })
+
+    # ki1 = key_issue.insert_one({
+    #     'start_time': datetime.now(),
+    #     'room_request': , 
+    #     'key'
+    # })
+    
 
     
