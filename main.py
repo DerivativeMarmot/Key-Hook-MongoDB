@@ -11,6 +11,56 @@ from Validator import Validator
 from datetime import datetime
 
 
+def main_menu(db):
+    choice = -1
+    while choice != 0:
+        print(
+            "Menu options:\n1.\tCreate a key\n2.\tEmployee Room Request\n3.\tIssue a key\n4.\tLosing a key\n5.\tRooms "
+            "employee can enter\n6.\t"
+            "Delete Key\n7.\tDelete Employee\n8.\tAdd Door to a hook\n9.\tUpdate Access Request\n"
+            "10.\tEmployees that can enter a room\n0.\tExit")
+        choice = int(input("Your Choice: "))
+
+        if choice == 1:
+            print("Which hook would you like to apply to this key?")
+
+            hook_col = db.hooks
+            all_hooks = hook_col.find()
+            option = 0
+            for hook in all_hooks:
+                option += 1
+                print(f"Option {option}: Hook Number {hook.hook_number}")
+            response = int(input("Your Choice: "))
+            hook = all_hooks[response]
+            keys = db.keys.find({"hook": DBRef("hooks", hook["_id"])})
+            new_key = {"key_number": len(keys)+1,
+                       "hook": DBRef("hooks", hook["_id"])}
+            result = db.keys.insert_one(new_key)
+            hook["keys"].append()
+            print(f"New key, #{new_key['key_number']} successfully added for hook {hook['hook_number']}")
+
+        elif choice == 2:
+            pass
+        elif choice == 3:
+            pass
+        elif choice == 4:
+            pass
+        elif choice == 5:
+            pass
+        elif choice == 6:
+            pass
+        elif choice == 7:
+            pass
+        elif choice == 8:
+            pass
+        elif choice == 9:
+            pass
+        elif choice == 10:
+            pass
+        else:
+            print("Exiting Application ... ")
+
+
 if __name__ == '__main__':
 
     # connect
