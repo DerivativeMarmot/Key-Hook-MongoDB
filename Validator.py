@@ -196,7 +196,7 @@ class Validator:
                     'required': ['building', 'room', 'door_name'],
                     'additionalProperties': False,
                     'properties': {
-                        '_id': {}
+                        '_id': {},
                         'room': {
                             'bsonType': "object",
                             'description': "room reference"

@@ -20,27 +20,52 @@ def main_menu(db):
             "Delete Key\n7.\tDelete Employee\n8.\tAdd Door to a hook\n9.\tUpdate Access Request\n"
             "10.\tEmployees that can enter a room\n0.\tExit")
         choice = int(input("Your Choice: "))
+        print()
 
         if choice == 1:
             print("Which hook would you like to apply to this key?")
 
             hook_col = db.hooks
-            all_hooks = hook_col.find()
+            all_hooks = hook_col.find({})
             option = 0
             for hook in all_hooks:
-                option += 1
                 print(f"Option {option}: Hook Number {hook.hook_number}")
+                option += 1
             response = int(input("Your Choice: "))
             hook = all_hooks[response]
             keys = db.keys.find({"hook": DBRef("hooks", hook["_id"])})
             new_key = {"key_number": len(keys)+1,
                        "hook": DBRef("hooks", hook["_id"])}
             result = db.keys.insert_one(new_key)
-            hook["keys"].append()
             print(f"New key, #{new_key['key_number']} successfully added for hook {hook['hook_number']}")
+            print()
 
         elif choice == 2:
-            pass
+            print("Which employee is requesting the access?")
+            emps = db.employees.find({})
+            option = 0
+            for emp in emps:
+                print(f"{option}: Full name {emp['full_name']}, id: {emp['_id']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            emp = emps[response]
+
+            print("Which room are you requesting access for?")
+            rooms = db.rooms.find({})
+            option = 0
+            for room in rooms:
+                print(f"{option}: {db.dereference(room['building'])['name']} {room['room_number']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            room = rooms[response]
+
+            new_request = {"request_time": datetime.now(),
+                           "employee": emp,
+                           "room": room}
+            result = db.room_requests.insert_one(new_request)
+            print("New request successfully made.")
+            print()
+
         elif choice == 3:
             pass
         elif choice == 4:
@@ -132,6 +157,8 @@ if __name__ == '__main__':
     #     'room_request': , 
     #     'key'
     # })
+
+    main_menu(db)
     
 
     
