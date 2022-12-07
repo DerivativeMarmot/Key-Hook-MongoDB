@@ -124,3 +124,157 @@ class Validator:
                 }
             }
         }
+
+    def buildings_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Building",
+                    'required': ["name"],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'name': {
+                            'bsonType': "string",
+                            'description': "building name"
+                        }
+                    }
+                }
+            }
+        }
+
+
+    def rooms_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Room",
+                    'required': ['room_number', 'building'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'room_number': {
+                            'bsonType': "int",
+                            'description': 'room number'
+                        },
+                        'building': {
+                            'bsonType': "object",
+                            'description': "building reference"
+                        }
+                    }
+                }
+            }
+        }
+
+    def door_names_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Door Name",
+                    'required': ['name'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'name': {
+                            'bsonType': "string",
+                            'description': 'door name'
+                        }
+                    }
+                }
+            }
+        }
+
+    def doors_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Door",
+                    'required': ['building', 'room', 'door_name'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {}
+                        'room': {
+                            'bsonType': "object",
+                            'description': "room reference"
+                        },
+                        'door_name': {
+                            'bsonType': "object",
+                            'description': "door_name reference"
+                        }
+                    }
+                }
+            }
+        }
+
+    def hooks_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Hook",
+                    'required': ['hook_number'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'hook_number': {
+                            'bsonType': "int",
+                            'description': 'hook number'
+                        }
+                    }
+                }
+            }
+        }
+
+    def hook_door_opening_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Hook",
+                    'required': ['hook_number'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'hook': {
+                            'bsonType': "object",
+                            'description': 'hook reference'
+                        },
+                        'door': {
+                            'bsontype': 'object',
+                            'description': 'door reference'
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+    def keys_validator():
+        return {
+            'validator': {
+                '$jsonSchema': {
+                    'bsonType': "object",
+                    'description': "Valid Room",
+                    'required': ['room_number', 'building'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '_id': {},
+                        'key_number': {
+                            'bsonType': "int",
+                            'description': 'key number'
+                        },
+                        'hook': {
+                            'bsonType': "object",
+                            'description': "building reference"
+                        }
+                    }
+                }
+            }
+        }
+
+
