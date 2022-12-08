@@ -15,10 +15,19 @@ def main_menu(db):
     choice = -1
     while choice != 0:
         print(
-            "Menu options:\n1.\tCreate a key\n2.\tEmployee Room Request\n3.\tIssue a key\n4.\tLosing a key\n5.\tRooms "
-            "employee can enter\n6.\t"
-            "Delete Key\n7.\tDelete Employee\n8.\tAdd Door to a hook\n9.\tUpdate Access Request\n"
-            "10.\tEmployees that can enter a room\n0.\tExit")
+            "Menu options:\n\
+            1.\tCreate a key\n\
+            2.\tEmployee Room Request\n\
+            3.\tIssue a key\n\
+            4.\tLosing a key\n\
+            5.\tRooms that a employee can enter\n\
+            6.\tDelete Key\n\
+            7.\tDelete Employee\n\
+            8.\tAdd Door to a hook\n\
+            9.\tUpdate Access Request\n\
+            10.\tEmployees that can enter a room\n\
+            0.\tExit"
+        )
         choice = int(input("Your Choice: "))
         print()
 
@@ -106,8 +115,39 @@ def main_menu(db):
             key_issue_loss.insert_one(new_loss)
             print("Key loss has been recorded.")
 
-        elif choice == 5:
-            pass
+        elif choice == 5: # Rooms that a employee can enter
+            employees_display : list = db.employees.find({})
+            names = []
+            for index, emp in enumerate(employees_display):
+                print(index, ': ', emp['full_name'])
+                names.append(emp['full_name'])
+            selected_emp_id = db.employees.find_one({
+                'full_name': names[int(input('Select a employee > '))]
+                })['_id']
+            
+            rqs = db.room_requests.find({
+                'employee': DBRef('employees', selected_emp_id)
+            })
+
+            ki_list:list = []
+            for rq in rqs:
+                ki = db.key_issue.find_one({'room_request', rq['_id']})
+                if ki != None:
+                    ki_list.append(ki)
+            print(ki)
+
+
+            #print(db.room_requests.find({'employee', DBRef('employee', selected_emp_id)}))
+
+            # for index, ki in enumerate(db.key_issue.find({})):
+            #     ki_room_request = db.dereference(ki['room_request'])
+            #     emp = db.dereference(ki_room_request['employee'])
+            #     if (emp['_id'] == selected_emp_id):
+            #         ki_key = db.dereference(ki['key'])
+            #         hook = db.dereference(ki_key['hook'])
+                
+
+        
         elif choice == 6:
             print("Choose a key to delete (all key issues associated with that key will also be deleted):")
             keys = db.keys.find({})
@@ -169,6 +209,36 @@ def main_menu(db):
         else:
             print("Exiting Application ... ")
 
+def insert(db):
+    e1 = employees.insert_one({
+        # 'id': 1,
+        'full_name': 'Sonja Miller'
+    })
+    e2 = employees.insert_one({
+        # 'id': 2,
+        'full_name': 'Johanna Hayes',
+    })
+
+    vec = db.buildings.insert_one({
+        'name': 'VEC'
+    })
+
+    room1 = rooms.insert_one({
+        'building': DBRef('buildings', vec.inserted_id),
+        'room_number': 322
+    })
+
+    rq1 = room_requests.insert_one({
+        'request_time': datetime.now(),
+        'employee': DBRef('employees', e1.inserted_id),
+        'room': DBRef('rooms', room1.inserted_id)
+    })
+
+    # ki1 = key_issue.insert_one({W
+    #     'start_time': datetime.now(),
+    #     'room_request': , 
+    #     'key'
+    # })
 
 if __name__ == '__main__':
 
@@ -215,34 +285,5 @@ if __name__ == '__main__':
     db.command('collMod', 'key_issue_return', validator=Validator.key_issue_return_validator())
     db.command('collMod', 'key_issue_loss', validator=Validator.key_issue_loss_validator())
 
-    e1 = employees.insert_one({
-        # 'id': 1,
-        'full_name': 'james bon'
-    })
-    e2 = employees.insert_one({
-        # 'id': 2,
-        'full_name': 'james bone',
-    })
-
-    vec = db.buildings.insert_one({
-        'name': 'VEC'
-    })
-
-    room1 = rooms.insert_one({
-        'building': DBRef('buildings', vec.inserted_id),
-        'room_number': 322
-    })
-
-    rq1 = room_requests.insert_one({
-        'request_time': datetime.now(),
-        'employee': DBRef('employees', e1.inserted_id),
-        'room': DBRef('rooms', room1.inserted_id)
-    })
-
-    # ki1 = key_issue.insert_one({W
-    #     'start_time': datetime.now(),
-    #     'room_request': , 
-    #     'key'
-    # })
-
+    insert(db)
     main_menu(db)
