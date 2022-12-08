@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from pprint import pprint
 from Utilities import Utilities
 from Validator import Validator
+import Insert_Statements as IS
 from datetime import datetime
 
 
@@ -134,7 +135,7 @@ def main_menu(db):
                 ki = db.key_issue.find_one({'room_request', rq['_id']})
                 if ki != None:
                     ki_list.append(ki)
-            print(ki)
+            print(ki_list)
 
 
             #print(db.room_requests.find({'employee', DBRef('employee', selected_emp_id)}))
@@ -250,40 +251,5 @@ if __name__ == '__main__':
         client.drop_database('key_hook')
     db = client.key_hook
 
-    employees = db.employees
-    room_requests = db.room_requests
-    rooms = db.rooms
-    key_issue = db.key_issue
-    key_issue_return = db.key_issue_return
-    key_issue_loss = db.key_issue_loss
-
-    # unique constraint
-    employees.create_index([
-        ('full_name', pymongo.ASCENDING)
-    ], unique=True)
-    room_requests.create_index([
-        ('request_time', pymongo.ASCENDING),
-        ('employee', pymongo.ASCENDING),
-        ('room', pymongo.ASCENDING),
-    ], unique=True)
-    key_issue.create_index([
-        ('start_time', pymongo.ASCENDING),
-        ('room_request', pymongo.ASCENDING),
-        ('key', pymongo.ASCENDING)
-    ], unique=True)
-    key_issue_return.create_index([
-        ('loss_date', pymongo.ASCENDING)
-    ], unique=True)
-    key_issue_loss.create_index([
-        ('return_date', pymongo.ASCENDING)
-    ], unique=True)
-
-    # validator
-    db.command('collMod', 'employees', validator=Validator.employees_validator())
-    db.command('collMod', 'room_requests', validator=Validator.room_requests_validator())
-    db.command('collMod', 'key_issue', validator=Validator.key_issue_validator())
-    db.command('collMod', 'key_issue_return', validator=Validator.key_issue_return_validator())
-    db.command('collMod', 'key_issue_loss', validator=Validator.key_issue_loss_validator())
-
-    insert(db)
+    IS.insert(db)
     main_menu(db)
