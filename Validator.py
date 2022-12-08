@@ -83,7 +83,7 @@ class Validator:
             }
         }
     
-    def key_issue_return_validator():
+    def key_issue_loss_validator():
         return {
             '$jsonSchema': {
                 'bsonType': "object",
@@ -104,7 +104,7 @@ class Validator:
             }
         }
     
-    def key_issue_loss_validator():
+    def key_issue_return_validator():
         return {
             '$jsonSchema': {
                 'bsonType': "object",

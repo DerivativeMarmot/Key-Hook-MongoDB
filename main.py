@@ -67,9 +67,45 @@ def main_menu(db):
             print()
 
         elif choice == 3:
-            pass
+            print("What room request would you like to issue a key to?")
+            requests = db.room_requests.find({})
+            option = 0
+            for request in requests:
+                emp = db.dereference(request['employee'])
+                room = db.dereference(request['room'])
+                building = db.dereference(request['building'])
+                print(f"Option {option}: Employee Full name {emp['full_name']},"
+                      f" Requesting: {building['name']} {room['room_number']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            request = requests[response]
+            emp = db.dereference(request['employee'])
+            room = db.dereference(request['room'])
+            building = db.dereference(request['building'])
+            keys = db.keys.find({})
+            valid_keys = []
+            for key in keys:
+                hdos = db.hook_door_openings.find({"hook": key['hook']})
+                # todo
+
         elif choice == 4:
-            pass
+            print("Which key has been lost?")
+            key_issues = db.key_issue.find({})
+            option = 0
+            for key_issue in key_issues:
+                room = db.dereference(key_issue['room'])
+                building = db.dereference(room['building'])
+                print(f"Option {option}: Key Issue ID {key_issue['_id']} for {building['name']} {room['room_number']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            issue = key_issues[response]
+            new_loss = {
+                "loss_time": datetime.now(),
+                "key_issue": DBRef("key_issue", issue['_id'])
+            }
+            key_issue_loss.insert_one(new_loss)
+            print("Key loss has been recorded.")
+
         elif choice == 5:
             pass
         elif choice == 6:
@@ -140,8 +176,12 @@ if __name__ == '__main__':
         'full_name': 'james bone',
     })
 
+    vec = db.buildings.insert_one({
+        'name': 'VEC'
+    })
+
     room1 = rooms.insert_one({
-        'building_name': 'VEC',
+        'building': DBRef('buildings', vec.inserted_id),
         'room_number': 322
     })
 
