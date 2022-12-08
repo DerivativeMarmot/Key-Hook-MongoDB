@@ -84,12 +84,12 @@ def insert(db):
 
     employee_results = employees.insert_many(employee_list)
 
-    room_list = [{'room_number': 30, 'building': DBRef('building', building_results.inserted_ids[0])},
-                 {'room_number': 23, 'building': DBRef('building', building_results.inserted_ids[0])},
-                 {'room_number': 402, 'building': DBRef('building', building_results.inserted_ids[1])},
-                 {'room_number': 105, 'building': DBRef('building', building_results.inserted_ids[5])},
-                 {'room_number': 213, 'building': DBRef('building', building_results.inserted_ids[3])},
-                 {'room_number': 309, 'building': DBRef('building', building_results.inserted_ids[4])}]
+    room_list = [{'room_number': 30, 'building': DBRef('buildings', building_results.inserted_ids[0])},
+                 {'room_number': 23, 'building': DBRef('buildings', building_results.inserted_ids[0])},
+                 {'room_number': 402, 'building': DBRef('buildings', building_results.inserted_ids[1])},
+                 {'room_number': 105, 'building': DBRef('buildings', building_results.inserted_ids[5])},
+                 {'room_number': 213, 'building': DBRef('buildings', building_results.inserted_ids[3])},
+                 {'room_number': 309, 'building': DBRef('buildings', building_results.inserted_ids[4])}]
 
     room_results = rooms.insert_many(room_list)
 
@@ -102,26 +102,26 @@ def insert(db):
 
     door_name_result = door_names.insert_many(door_name_list)
 
-    door_list = [{'door_name': DBRef('door_name', door_name_result.inserted_ids[0]),
-                  'room': DBRef('room', room_results.inserted_ids[0])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[1]),
-                  'room': DBRef('room', room_results.inserted_ids[0])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[0]),
-                  'room': DBRef('room', room_results.inserted_ids[1])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[1]),
-                  'room': DBRef('room', room_results.inserted_ids[1])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[2]),
-                  'room': DBRef('room', room_results.inserted_ids[2])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[4]),
-                  'room': DBRef('room', room_results.inserted_ids[3])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[5]),
-                  'room': DBRef('room', room_results.inserted_ids[3])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[0]),
-                  'room': DBRef('room', room_results.inserted_ids[4])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[2]),
-                  'room': DBRef('room', room_results.inserted_ids[5])},
-                 {'door_name': DBRef('door_name', door_name_result.inserted_ids[3]),
-                  'room': DBRef('room', room_results.inserted_ids[5])}]
+    door_list = [{'door_name': DBRef('door_names', door_name_result.inserted_ids[0]),
+                  'room': DBRef('rooms', room_results.inserted_ids[0])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[1]),
+                  'room': DBRef('rooms', room_results.inserted_ids[0])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[0]),
+                  'room': DBRef('rooms', room_results.inserted_ids[1])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[1]),
+                  'room': DBRef('rooms', room_results.inserted_ids[1])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[2]),
+                  'room': DBRef('rooms', room_results.inserted_ids[2])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[4]),
+                  'room': DBRef('rooms', room_results.inserted_ids[3])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[5]),
+                  'room': DBRef('rooms', room_results.inserted_ids[3])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[0]),
+                  'room': DBRef('rooms', room_results.inserted_ids[4])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[2]),
+                  'room': DBRef('rooms', room_results.inserted_ids[5])},
+                 {'door_name': DBRef('door_names', door_name_result.inserted_ids[3]),
+                  'room': DBRef('rooms', room_results.inserted_ids[5])}]
 
     door_result = doors.insert_many(door_list)
 
@@ -134,81 +134,81 @@ def insert(db):
 
     hook_result = hooks.insert_many(hook_list)
 
-    hook_door_opening_list = [{'hook': DBRef('hook', hook_result.inserted_ids[0]),
-                               'door': DBRef('door', door_result.inserted_ids[0])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[0]),
-                               'door': DBRef('door', door_result.inserted_ids[1])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[1]),
-                               'door': DBRef('door', door_result.inserted_ids[0])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[1]),
-                               'door': DBRef('door', door_result.inserted_ids[2])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[1]),
-                               'door': DBRef('door', door_result.inserted_ids[3])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[2]),
-                               'door': DBRef('door', door_result.inserted_ids[4])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[3]),
-                               'door': DBRef('door', door_result.inserted_ids[5])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[3]),
-                               'door': DBRef('door', door_result.inserted_ids[6])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[4]),
-                               'door': DBRef('door', door_result.inserted_ids[7])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[5]),
-                               'door': DBRef('door', door_result.inserted_ids[8])},
-                              {'hook': DBRef('hook', hook_result.inserted_ids[5]),
-                               'door': DBRef('door', door_result.inserted_ids[9])}]
+    hook_door_opening_list = [{'hook': DBRef('hooks', hook_result.inserted_ids[0]),
+                               'door': DBRef('doors', door_result.inserted_ids[0])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[0]),
+                               'door': DBRef('doors', door_result.inserted_ids[1])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[1]),
+                               'door': DBRef('doors', door_result.inserted_ids[0])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[1]),
+                               'door': DBRef('doors', door_result.inserted_ids[2])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[1]),
+                               'door': DBRef('doors', door_result.inserted_ids[3])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[2]),
+                               'door': DBRef('doors', door_result.inserted_ids[4])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[3]),
+                               'door': DBRef('doors', door_result.inserted_ids[5])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[3]),
+                               'door': DBRef('doors', door_result.inserted_ids[6])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[4]),
+                               'door': DBRef('doors', door_result.inserted_ids[7])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[5]),
+                               'door': DBRef('doors', door_result.inserted_ids[8])},
+                              {'hook': DBRef('hooks', hook_result.inserted_ids[5]),
+                               'door': DBRef('doors', door_result.inserted_ids[9])}]
 
     hook_door_opening_result = hook_door_opening.insert_many(hook_door_opening_list)
 
-    key_list = [{'key_number': 1, 'hook': DBRef('hook', hook_result.inserted_ids[0])},
-                {'key_number': 2, 'hook': DBRef('hook', hook_result.inserted_ids[1])},
-                {'key_number': 3, 'hook': DBRef('hook', hook_result.inserted_ids[1])},
-                {'key_number': 4, 'hook': DBRef('hook', hook_result.inserted_ids[2])},
-                {'key_number': 5, 'hook': DBRef('hook', hook_result.inserted_ids[3])},
-                {'key_number': 6, 'hook': DBRef('hook', hook_result.inserted_ids[4])},
-                {'key_number': 7, 'hook': DBRef('hook', hook_result.inserted_ids[4])},
-                {'key_number': 8, 'hook': DBRef('hook', hook_result.inserted_ids[5])}]
+    key_list = [{'key_number': 1, 'hook': DBRef('hooks', hook_result.inserted_ids[0])},
+                {'key_number': 2, 'hook': DBRef('hooks', hook_result.inserted_ids[1])},
+                {'key_number': 3, 'hook': DBRef('hooks', hook_result.inserted_ids[1])},
+                {'key_number': 4, 'hook': DBRef('hooks', hook_result.inserted_ids[2])},
+                {'key_number': 5, 'hook': DBRef('hooks', hook_result.inserted_ids[3])},
+                {'key_number': 6, 'hook': DBRef('hooks', hook_result.inserted_ids[4])},
+                {'key_number': 7, 'hook': DBRef('hooks', hook_result.inserted_ids[4])},
+                {'key_number': 8, 'hook': DBRef('hooks', hook_result.inserted_ids[5])}]
 
     key_result = keys.insert_many(key_list)
 
     room_request_list = [{'request_time': datetime.now(),
-                          'employee': DBRef('employee', employee_results.inserted_ids[0]),
-                          'room': DBRef('room', room_results.inserted_ids[1])},
+                          'employee': DBRef('employees', employee_results.inserted_ids[0]),
+                          'room': DBRef('rooms', room_results.inserted_ids[1])},
                          {'request_time': datetime.now(),
-                          'employee': DBRef('employee', employee_results.inserted_ids[1]),
-                          'room': DBRef('room', room_results.inserted_ids[1])},
+                          'employee': DBRef('employees', employee_results.inserted_ids[1]),
+                          'room': DBRef('rooms', room_results.inserted_ids[1])},
                          {'request_time': datetime.now(),
-                          'employee': DBRef('employee', employee_results.inserted_ids[2]),
-                          'room': DBRef('room', room_results.inserted_ids[4])},
+                          'employee': DBRef('employees', employee_results.inserted_ids[2]),
+                          'room': DBRef('rooms', room_results.inserted_ids[4])},
                          {'request_time': datetime.now(),
-                          'employee': DBRef('employee', employee_results.inserted_ids[3]),
-                          'room': DBRef('room', room_results.inserted_ids[1])},
+                          'employee': DBRef('employees', employee_results.inserted_ids[3]),
+                          'room': DBRef('rooms', room_results.inserted_ids[1])},
                          {'request_time': datetime.now(),
-                          'employee': DBRef('employee', employee_results.inserted_ids[4]),
-                          'room': DBRef('room', room_results.inserted_ids[4])},
+                          'employee': DBRef('employees', employee_results.inserted_ids[4]),
+                          'room': DBRef('rooms', room_results.inserted_ids[4])},
                          {'request_time': datetime.now(),
-                          'employee': DBRef('employee', employee_results.inserted_ids[3]),
-                          'room': DBRef('room', room_results.inserted_ids[5])}]
+                          'employee': DBRef('employees', employee_results.inserted_ids[3]),
+                          'room': DBRef('rooms', room_results.inserted_ids[5])}]
 
     room_requests_result = room_requests.insert_many(room_request_list)
 
     key_issue_list = [{'start_time': datetime.now(),
-                       'room_request': DBRef('room_request', room_requests_result.inserted_ids[0]),
-                       'key': DBRef('key', key_result.inserted_ids[0])},
+                       'room_request': DBRef('room_requests', room_requests_result.inserted_ids[0]),
+                       'key': DBRef('keys', key_result.inserted_ids[0])},
                       {'start_time': datetime.now(),
-                       'room_request': DBRef('room_request', room_requests_result.inserted_ids[1]),
-                       'key': DBRef('key', key_result.inserted_ids[1])},
+                       'room_request': DBRef('room_requests', room_requests_result.inserted_ids[1]),
+                       'key': DBRef('keys', key_result.inserted_ids[1])},
                       {'start_time': datetime.now(),
-                       'room_request': DBRef('room_request', room_requests_result.inserted_ids[2]),
-                       'key': DBRef('key', key_result.inserted_ids[5])},
+                       'room_request': DBRef('room_requests', room_requests_result.inserted_ids[2]),
+                       'key': DBRef('keys', key_result.inserted_ids[5])},
                       {'start_time': datetime.now(),
-                       'room_request': DBRef('room_request', room_requests_result.inserted_ids[3]),
-                       'key': DBRef('key', key_result.inserted_ids[4])},
+                       'room_request': DBRef('room_requests', room_requests_result.inserted_ids[3]),
+                       'key': DBRef('keys', key_result.inserted_ids[4])},
                       {'start_time': datetime.now(),
-                       'room_request': DBRef('room_request', room_requests_result.inserted_ids[4]),
-                       'key': DBRef('key', key_result.inserted_ids[6])},
+                       'room_request': DBRef('room_requests', room_requests_result.inserted_ids[4]),
+                       'key': DBRef('keys', key_result.inserted_ids[6])},
                       {'start_time': datetime.now(),
-                       'room_request': DBRef('room_request', room_requests_result.inserted_ids[5]),
-                       'key': DBRef('key', key_result.inserted_ids[7])}]
+                       'room_request': DBRef('room_requests', room_requests_result.inserted_ids[5]),
+                       'key': DBRef('keys', key_result.inserted_ids[7])}]
 
     key_issue_result = key_issue.insert_many(key_issue_list)
     

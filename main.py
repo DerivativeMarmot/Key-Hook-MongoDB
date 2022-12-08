@@ -36,14 +36,15 @@ def main_menu(db):
             print("Which hook would you like to apply to this key?")
 
             hook_col = db.hooks
-            all_hooks = hook_col.find({})
+            all_hooks = list(hook_col.find({}))
             option = 0
             for hook in all_hooks:
-                print(f"Option {option}: Hook Number {hook.hook_number}")
+                print(f"Option {option}: Hook Number {hook['hook_number']}")
                 option += 1
             response = int(input("Your Choice: "))
+
             hook = all_hooks[response]
-            keys = db.keys.find({"hook": DBRef("hooks", hook["_id"])})
+            keys = list(db.keys.find({}))
             new_key = {"key_number": len(keys) + 1,
                        "hook": DBRef("hooks", hook["_id"])}
             result = db.keys.insert_one(new_key)
@@ -52,72 +53,87 @@ def main_menu(db):
 
         elif choice == 2:
             print("Which employee is requesting the access?")
-            emps = db.employees.find({})
+            emps = list(db.employees.find({}))
             option = 0
             for emp in emps:
-                print(f"{option}: Full name {emp['full_name']}, id: {emp['_id']}")
+                print(f"Option {option}: Full name: {emp['full_name']}, id: {emp['_id']}")
                 option += 1
             response = int(input("Your Choice: "))
             emp = emps[response]
 
             print("Which room are you requesting access for?")
-            rooms = db.rooms.find({})
+            rooms = list(db.rooms.find({}))
             option = 0
             for room in rooms:
-                print(f"{option}: {db.dereference(room['building'])['name']} {room['room_number']}")
+                building = db.dereference(room['building'])
+                print(f"Option {option}: {building['name']} {room['room_number']}")
                 option += 1
             response = int(input("Your Choice: "))
             room = rooms[response]
 
             new_request = {"request_time": datetime.now(),
-                           "employee": emp,
-                           "room": room}
+                           "employee": DBRef('employees', emp['_id']),
+                           "room": DBRef('rooms', room['_id'])}
             result = db.room_requests.insert_one(new_request)
             print("New request successfully made.")
             print()
 
         elif choice == 3:
             print("What room request would you like to issue a key to?")
-            requests = db.room_requests.find({})
+            requests = list(db.room_requests.find({}))
             option = 0
             for request in requests:
                 emp = db.dereference(request['employee'])
                 room = db.dereference(request['room'])
-                building = db.dereference(request['building'])
+                building = db.dereference(room['building'])
                 print(f"Option {option}: Employee Full name {emp['full_name']},"
                       f" Requesting: {building['name']} {room['room_number']}")
                 option += 1
             response = int(input("Your Choice: "))
             request = requests[response]
             emp = db.dereference(request['employee'])
-            room = db.dereference(request['room'])
-            building = db.dereference(request['building'])
-            keys = db.keys.find({})
-            valid_keys = []
-            for key in keys:
-                hdos = db.hook_door_openings.find({"hook": key['hook']})
-                # todo
+            requested_room = db.dereference(request['room'])
+
+            hdos = db.hook_door_opening.find({})
+            for hdo in hdos:
+                door = db.dereference(hdo['door'])
+                room = db.dereference(door['room'])
+                if room == requested_room:
+                    hook = db.dereference(hdo['hook'])
+                    # create a new key under that hook
+                    keys = list(db.keys.find({}))
+                    new_key = db.keys.insert_one({"key_number": len(keys) + 1,
+                                                  "hook": DBRef("hooks", hook["_id"])})
+                    result = db.key_issue.insert_one({
+                        "start_time": datetime.now(),
+                        "room_request": DBRef("room_requests", request['_id']),
+                        "key": DBRef('keys', new_key.inserted_id)
+                    })
+                    print("A key has been created and issued to the room request")
+                    break
 
         elif choice == 4:
             print("Which key has been lost?")
-            key_issues = db.key_issue.find({})
+            key_issues = list(db.key_issue.find({}))
             option = 0
             for key_issue in key_issues:
-                room = db.dereference(key_issue['room'])
+                room_request = db.dereference(key_issue['room_request'])
+                room = db.dereference(room_request['room'])
                 building = db.dereference(room['building'])
                 print(f"Option {option}: Key Issue ID {key_issue['_id']} for {building['name']} {room['room_number']}")
                 option += 1
             response = int(input("Your Choice: "))
             issue = key_issues[response]
             new_loss = {
-                "loss_time": datetime.now(),
+                "loss_date": datetime.now(),
                 "key_issue": DBRef("key_issue", issue['_id'])
             }
-            key_issue_loss.insert_one(new_loss)
+            db.key_issue_loss.insert_one(new_loss)
             print("Key loss has been recorded.")
 
+        # TODO: Fix this
         elif choice == 5: # Rooms that a employee can enter
-            employees_display : list = db.employees.find({})
+            employees_display : list = list(db.employees.find({}))
             names = []
             for index, emp in enumerate(employees_display):
                 print(index, ': ', emp['full_name'])
@@ -151,7 +167,7 @@ def main_menu(db):
         
         elif choice == 6:
             print("Choose a key to delete (all key issues associated with that key will also be deleted):")
-            keys = db.keys.find({})
+            keys = list(db.keys.find({}))
             option = 0
             for key in keys:
                 hook = db.dereference(key['hook'])
@@ -159,18 +175,20 @@ def main_menu(db):
                 option += 1
             response = int(input("Your Choice: "))
             key = keys[response]
-            issues = db.key_issue.find({'key': DBRef('keys', key['_id'])})
+            issues = list(db.key_issue.find({'key': DBRef('keys', key['_id'])}))
             for issue in issues:
                 issue_ref = DBRef('key_issues', issue['_id'])
                 db.key_issue_loss.delete_many({'key_issue': issue_ref})
                 db.key_issue_return.delete_many({'key_issue': issue_ref})
                 db.key_issue.delete_one({'_id': issue['_id']})
+            db.keys.delete_one({'_id': key['_id']})
             print("The key has been deleted.")
+
         elif choice == 7:
             pass
         elif choice == 8:
             print("Which hook do you want to add to?")
-            hooks = db.hooks.find({})
+            hooks = list(db.hooks.find({}))
             option = 0
             for hook in hooks:
                 print(f"Option {option}:  Hook {hook['hook_number']}")
@@ -178,7 +196,7 @@ def main_menu(db):
             response = int(input("Your Choice: "))
             hook = hooks[response]
             print("Which building?")
-            buildings = db.buildings.find({})
+            buildings = list(db.buildings.find({}))
             option = 0
             for building in buildings:
                 print(f"Option {option}:  {building['name']}")
@@ -186,12 +204,21 @@ def main_menu(db):
             response = int(input("Your Choice: "))
             building = buildings[response]
 
+            print("Which room?")
+            rooms = list(db.rooms.find({'building': DBRef('buildings', building['_id'])}))
+            option = 0
+            for room in rooms:
+                print(f"Option {option}: {room['room_number']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            room = rooms[response]
+
             print("Which door?")
-            doors = db.doors.find({'building': DBRef('buildings', building['_id'])})
+            doors = list(db.doors.find({'room': DBRef('rooms', room['_id'])}))
             option = 0
             for door in doors:
-                room = db.dereference(door['room'])
-                print(f"Option {option}: {room['room_number']} {door['door_name']}")
+                door_name = db.dereference(door['door_name'])
+                print(f"Option {option}:{door_name['name']}")
                 option += 1
             response = int(input("Your Choice: "))
             door = doors[response]
@@ -200,40 +227,43 @@ def main_menu(db):
                 'hook': DBRef('hooks', hook['_id']),
                 'door': DBRef('doors', door['_id'])
             }
+            try:
+                db.hook_door_openings.insert_one(new_opening)
+                print("Door is added to those that can be opened by the hook.")
+            except Exception as e:
+                print(e)
+                print("The hook can already open that door.")
 
-            db.hook_door_openings.insert_one(new_opening)
-            print("Door is added to that can be opened by the hook.")
         elif choice == 9:
             pass
         elif choice == 10:
             pass
-        else:
-            print("Exiting Application ... ")
 
-def insert(db):
-    e1 = employees.insert_one({
-        # 'id': 1,
-        'full_name': 'Sonja Miller'
-    })
-    e2 = employees.insert_one({
-        # 'id': 2,
-        'full_name': 'Johanna Hayes',
-    })
 
-    vec = db.buildings.insert_one({
-        'name': 'VEC'
-    })
-
-    room1 = rooms.insert_one({
-        'building': DBRef('buildings', vec.inserted_id),
-        'room_number': 322
-    })
-
-    rq1 = room_requests.insert_one({
-        'request_time': datetime.now(),
-        'employee': DBRef('employees', e1.inserted_id),
-        'room': DBRef('rooms', room1.inserted_id)
-    })
+# def insert(db):
+#     e1 = employees.insert_one({
+#         # 'id': 1,
+#         'full_name': 'Sonja Miller'
+#     })
+#     e2 = employees.insert_one({
+#         # 'id': 2,
+#         'full_name': 'Johanna Hayes',
+#     })
+#
+#     vec = db.buildings.insert_one({
+#         'name': 'VEC'
+#     })
+#
+#     room1 = rooms.insert_one({
+#         'building': DBRef('buildings', vec.inserted_id),
+#         'room_number': 322
+#     })
+#
+#     rq1 = room_requests.insert_one({
+#         'request_time': datetime.now(),
+#         'employee': DBRef('employees', e1.inserted_id),
+#         'room': DBRef('rooms', room1.inserted_id)
+#     })
 
     # ki1 = key_issue.insert_one({W
     #     'start_time': datetime.now(),
@@ -253,3 +283,4 @@ if __name__ == '__main__':
 
     IS.insert(db)
     main_menu(db)
+    print("Exiting Application ... ")
