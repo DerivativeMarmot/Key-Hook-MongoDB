@@ -34,7 +34,7 @@ def main_menu(db):
             response = int(input("Your Choice: "))
             hook = all_hooks[response]
             keys = db.keys.find({"hook": DBRef("hooks", hook["_id"])})
-            new_key = {"key_number": len(keys)+1,
+            new_key = {"key_number": len(keys) + 1,
                        "hook": DBRef("hooks", hook["_id"])}
             result = db.keys.insert_one(new_key)
             print(f"New key, #{new_key['key_number']} successfully added for hook {hook['hook_number']}")
@@ -89,7 +89,7 @@ def main_menu(db):
 if __name__ == '__main__':
 
     # connect
-    client : MongoClient = Utilities.startup()
+    client: MongoClient = Utilities.startup()
 
     # initialize
     if 'key_hook' in client.list_database_names():
@@ -131,7 +131,6 @@ if __name__ == '__main__':
     db.command('collMod', 'key_issue_return', validator=Validator.key_issue_return_validator())
     db.command('collMod', 'key_issue_loss', validator=Validator.key_issue_loss_validator())
 
-
     e1 = employees.insert_one({
         # 'id': 1,
         'full_name': 'james bon'
@@ -159,6 +158,3 @@ if __name__ == '__main__':
     # })
 
     main_menu(db)
-    
-
-    
