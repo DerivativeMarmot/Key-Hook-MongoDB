@@ -109,11 +109,59 @@ def main_menu(db):
         elif choice == 5:
             pass
         elif choice == 6:
-            pass
+            print("Choose a key to delete (all key issues associated with that key will also be deleted):")
+            keys = db.keys.find({})
+            option = 0
+            for key in keys:
+                hook = db.dereference(key['hook'])
+                print(f"Option {option}:  Hook {hook['hook_number']} Key {key['key_number']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            key = keys[response]
+            issues = db.key_issue.find({'key': DBRef('keys', key['_id'])})
+            for issue in issues:
+                issue_ref = DBRef('key_issues', issue['_id'])
+                db.key_issue_loss.delete_many({'key_issue': issue_ref})
+                db.key_issue_return.delete_many({'key_issue': issue_ref})
+                db.key_issue.delete_one({'_id': issue['_id']})
+            print("The key has been deleted.")
         elif choice == 7:
             pass
         elif choice == 8:
-            pass
+            print("Which hook do you want to add to?")
+            hooks = db.hooks.find({})
+            option = 0
+            for hook in hooks:
+                print(f"Option {option}:  Hook {hook['hook_number']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            hook = hooks[response]
+            print("Which building?")
+            buildings = db.buildings.find({})
+            option = 0
+            for building in buildings:
+                print(f"Option {option}:  {building['name']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            building = buildings[response]
+
+            print("Which door?")
+            doors = db.doors.find({'building': DBRef('buildings', building['_id'])})
+            option = 0
+            for door in doors:
+                room = db.dereference(door['room'])
+                print(f"Option {option}: {room['room_number']} {door['door_name']}")
+                option += 1
+            response = int(input("Your Choice: "))
+            door = doors[response]
+
+            new_opening = {
+                'hook': DBRef('hooks', hook['_id']),
+                'door': DBRef('doors', door['_id'])
+            }
+
+            db.hook_door_openings.insert_one(new_opening)
+            print("Door is added to that can be opened by the hook.")
         elif choice == 9:
             pass
         elif choice == 10:
@@ -191,7 +239,7 @@ if __name__ == '__main__':
         'room': DBRef('rooms', room1.inserted_id)
     })
 
-    # ki1 = key_issue.insert_one({
+    # ki1 = key_issue.insert_one({W
     #     'start_time': datetime.now(),
     #     'room_request': , 
     #     'key'
