@@ -131,7 +131,6 @@ def main_menu(db):
             db.key_issue_loss.insert_one(new_loss)
             print("Key loss has been recorded.")
 
-        # TODO: Fix this
         elif choice == 5: # Rooms that an employee can enter
             employees_display : list = list(db.employees.find({}))
             names = []
@@ -146,22 +145,27 @@ def main_menu(db):
                 'employee': DBRef('employees', selected_emp_id)
             })
 
-            ki_list:list = []
+            keys_belong_to_hooks:list = [] # array of hooks
             for rq in rqs:
-                ki = db.key_issue.find_one({'room_request', rq['_id']})
+                ki = db.key_issue.find_one({'room_request': DBRef('room_requests', rq['_id'])})
                 if ki != None:
-                    ki_list.append(ki)
-            print(ki_list)
+                    key_owned = db.dereference(ki['key'])
+                    keys_belong_to_hooks.append(db.dereference(key_owned['hook']))
 
-
-            #print(db.room_requests.find({'employee', DBRef('employee', selected_emp_id)}))
-
-            # for index, ki in enumerate(db.key_issue.find({})):
-            #     ki_room_request = db.dereference(ki['room_request'])
-            #     emp = db.dereference(ki_room_request['employee'])
-            #     if (emp['_id'] == selected_emp_id):
-            #         ki_key = db.dereference(ki['key'])
-            #         hook = db.dereference(ki_key['hook'])
+            rooms_can_enter = []
+            for hook in keys_belong_to_hooks:
+                for opening in db.hook_door_opening.find({'hook': DBRef('hooks', hook['_id'])}):
+                    door_can_open = db.dereference(opening['door'])
+                    rooms_can_enter.append(db.dereference(door_can_open['room']))
+            
+            rooms_display = []
+            for room in rooms_can_enter:
+                room_number = room['room_number']
+                building = db.dereference(room['building'])['name']
+                rooms_display.append('{} {}'.format(building, room_number))
+            
+            for room in set(rooms_display):
+                print(room)
 
         elif choice == 6:
             print("Choose a key to delete (all key issues associated with that key will also be deleted):")
